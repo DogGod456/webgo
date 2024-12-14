@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рабочее пространство</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        header button {
+            margin-left: 10px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #0056b3;
+            color: white;
+            cursor: pointer;
+        }
+        header button:hover {
+            background-color: #004494;
+        }
+        .container {
+            display: flex;
+            flex-grow: 1;
+        }
+        .notes-list {
+            width: 200px; /* Ширина списка заметок */
+            border-right: 1px solid #ccc; /* Разделитель */
+            padding: 10px;
+        }
+        .notes-list button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+        .notes-list button:hover {
+            background-color: #e0e0e0;
+        }
+        .main-content {
+            flex-grow: 1; /* Заполняет оставшееся пространство */
+            display: flex;
+            justify-content: center; /* Центрирование содержимого */
+            align-items: center; /* Вертикальное центрирование */
+        }
+        .main-content p {
+            font-size: 18px; /* Размер текста */
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div>
+        <button onclick="location.href='/create-note'">Создать заметку</button>
+        <button onclick="location.href='/open-note'">Открыть заметку</button>
+        <button onclick="location.href='/help'">Справка</button>
+    </div>
+    <div>
+        <span id="username">{{.Username}}</span> <!-- Здесь будет имя пользователя -->
+        <button onclick="location.href='/logout'+'?username={{.Username}}'+'&{{.HashedPassword}}'">Выход</button>
+    </div>
+</header>
+<div class="container">
+    <div class="notes-list">
+        <h3>Список заметок</h3>
+        <button>Заметка 1</button>
+        <button>Заметка 2</button>
+        <button>Заметка 3</button>
+    </div>
+    <div class="main-content">
+        <p>Выберите заметку или создайте ее нажав на кнопку "Создать заметку"</p>
+    </div>
+</div>
+</body>
+</html>

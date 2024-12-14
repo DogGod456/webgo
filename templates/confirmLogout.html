@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Подтверждение выхода</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+    }
+    .confirmation {
+      text-align: center;
+    }
+    button {
+      margin: 5px;
+      padding: 10px 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="confirmation">
+  <h2>Вы действительно хотите выйти?</h2>
+  <form action="/logout?username={{.Username}}&{{.HashedPassword}}" method="POST">
+    <button type="submit" name="confirm" value="yes">ДА</button>
+    <button type="submit" name="confirm" value="no">НЕТ</button>
+  </form>
+</div>
+</body>
+</html>
