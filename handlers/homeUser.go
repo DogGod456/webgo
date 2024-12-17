@@ -11,11 +11,18 @@ var templates = template.Must(template.ParseFiles("templates/homeUser.html"))
 func HomeUser(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "session-name")
 	userID := session.Values["user_id"] // Извлекаем ID пользователя из сессии
-	//username := session.Values["username"]
-	log.Println(userID, store, session)
-	var user User
 
-	rows, err := db.Query("SELECT id, user_id, title, content FROM notes WHERE user_id = $1", user.UserID)
+	if userID == nil {
+		log.Println("Отсутствует сессия")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return // Возвращаем ошибку, если произошла ошибка
+	}
+
+	log.Println("asdasd", userID, store, session)
+	var user User
+	user.Username = session.Values["username"].(string)
+
+	rows, err := db.Query("SELECT id, user_id, title, content FROM notes WHERE user_id = $1", userID)
 	if err != nil {
 		http.Error(w, "Ошибка получения данных2", http.StatusInternalServerError)
 		return
