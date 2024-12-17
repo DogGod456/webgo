@@ -8,9 +8,12 @@ import (
 )
 
 func GetAllNotes(w http.ResponseWriter, r *http.Request) {
+
 	session, _ := store.Get(r, "session-name")
 	userID := session.Values["user_id"] // Извлекаем ID пользователя из сессии
-	log.Println("aboba", userID)
+	log.Println("aboba1", userID)
+
+	log.Println("aboba2", userID)
 	rows, err := db.Query("SELECT id, user_id, title, content FROM notes WHERE user_id = $1", userID)
 	if err != nil {
 		http.Error(w, "Ошибка получения данных", http.StatusInternalServerError)
@@ -30,6 +33,7 @@ func GetAllNotes(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonResponse, err := json.Marshal(notes)
+	log.Println(jsonResponse)
 	if err != nil {
 		http.Error(w, "Ошибка формирования ответа", http.StatusInternalServerError)
 		return

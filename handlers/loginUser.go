@@ -19,8 +19,9 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		password := r.FormValue("password")
 
 		var hashedPassword string
+		var userID int
 
-		err = db.QueryRow("SELECT hashed_password FROM users WHERE user_name = $1", username).Scan(&hashedPassword)
+		err = db.QueryRow("SELECT id, hashed_password FROM users WHERE user_name = $1", username).Scan(&userID, &hashedPassword)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				http.Redirect(w, r, "/register?error=not_registered", http.StatusSeeOther)
@@ -32,7 +33,8 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 		if CheckPasswordHash(password, hashedPassword) { // Предполагается наличие функции CheckPasswordHash в вашем коде.
 			session, _ := store.Get(r, "session-name")
-			session.Values["user_id"] = username // Сохраняем ID пользователя в сессии.
+			session.Values["user_id"] = userID // Сохраняем ID пользователя в сессии.
+			session.Values["username"] = username
 			session.Save(r, w)
 
 			http.Redirect(w, r, "/homeUser", http.StatusSeeOther)
