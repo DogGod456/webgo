@@ -108,14 +108,46 @@
     <button onclick="createNote()">Создать</button>
     <button onclick="hideCreateNoteModal()">Отмена</button>
 </div>
+<div class="main-content">
+    <h3 id="noteTitle"></h3>
+    <textarea id="noteContent" rows="10" cols="50" placeholder="Введите текст заметки..."></textarea><br/>
+    <button onclick="saveNote()">Сохранить</button>
+</div>
+</div>
+
+<!--<script>-->
+<!--    function openNote(id) {-->
+<!--        const note = notes.find(n => n.id === id);-->
+
+<!--        if (note) {-->
+<!--            document.getElementById('noteTitle').innerText = note.title;-->
+<!--            document.getElementById('noteContent').value = note.content;-->
+<!--            currentNoteId = id;-->
+<!--        }-->
+<!--    }-->
+
+<!--    function saveNote() {-->
+<!--        const title = document.getElementById('noteTitle').innerText;-->
+<!--        const content = document.getElementById('noteContent').value;-->
 
 
-<script>
-    function openNote(noteID) {
-        document.getElementById('main_content').innerHTML = `Новое содержимое! ${noteID}`;
-        console.log(noteID);
-    }
-</script>
+<!--        const note = { title: title || 'Новая заметка', content: content};-->
+
+<!--        fetch('/notes', {-->
+<!--            method: 'POST',-->
+<!--            headers: {-->
+<!--                'Content-Type': 'application/json'-->
+<!--            },-->
+<!--            body: JSON.stringify(note)-->
+<!--        })-->
+<!--            .then(response => response.json())-->
+<!--            .then(data => {-->
+<!--                notes.push(data);-->
+<!--                displayNotes();-->
+<!--            })-->
+<!--            .catch(error => console.error('Ошибка:', error));-->
+<!--    }-->
+<!--</script>-->
 <script>
     // Массив для хранения заметок
     let notes = [];
@@ -226,12 +258,12 @@
     }
 
     // Загрузка существующих заметок при загрузке страницы (если необходимо)
-    fetch('/notes')
-        .then(response => response.json())
-        .then(data => {
-            notes = data;
-            displayNotes();
-        });
+    // fetch('/notes')
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         notes = data;
+    //         displayNotes();
+    //     });
 </script>
 
 </body>
