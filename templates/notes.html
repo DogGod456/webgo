@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Заметки</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { display: flex; }
+        .notes-list { width: 200px; border-right: 1px solid #ccc; padding: 10px; }
+        .main-content { flex-grow: 1; padding: 10px; }
+        .note { margin-bottom: 10px; padding: 10px; border: 1px solid #ccc; cursor: pointer; }
+        .note:hover { background-color: #f0f0f0; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="notes-list">
+        <h3>Список заметок</h3>
+        <div id="noteList"></div>
+        <button onclick="createNote()">Создать заметку</button>
+    </div>
+    <div class="main-content">
+        <h3 id="noteTitle"></h3>
+        <textarea id="noteContent" rows="10" cols="50" placeholder="Введите текст заметки..."></textarea><br/>
+        <button onclick="saveNote()">Сохранить</button>
+    </div>
+</div>
+
+<script>
+    let notes = [];
+    let currentNoteId = null;
+
+    function createNote() {
+        document.getElementById('noteTitle').innerText = 'Новая заметка';
+        document.getElementById('noteContent').value = '';
+        currentNoteId = null;
+    }
+
+    function saveNote() {
+        const title = document.getElementById('noteTitle').innerText;
+        const content = document.getElementById('noteContent').value;
+        const color = prompt("Выберите цвет индикатора (например, red или blue):");
+
+        const note = { title: title || 'Новая заметка', content: content, color: color };
+
+        fetch('/notes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(note)
+        })
+            .then(response => response.json())
+            .then(data => {
+                notes.push(data);
+                displayNotes();
+            })
+            .catch(error => console.error('Ошибка:', error));
+    }
+
+    function displayNotes() {
+        const noteList = document.getElementById('noteList');
+        noteList.innerHTML = '';
+
+        notes.forEach(note => {
+            const noteDiv = document.createElement('div');
+            noteDiv.className = 'note';
+            noteDiv.style.backgroundColor = note.color;
+            noteDiv.innerText = note.title;
+
+            noteDiv.onclick = function() {
+                openNote(note.id);
+            };
+
+            noteList.appendChild(noteDiv);
+        });
+    }
+
+    function openNote(id) {
+        const note = notes.find(n => n.id === id);
+
+        if (note) {
+            document.getElementById('noteTitle').innerText = note.title;
+            document.getElementById('noteContent').value = note.content;
+            currentNoteId = id;
+        }
+    }
+
+    // Загрузка существующих заметок при загрузке страницы (если необходимо)
+    // fetch('/notes')
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         notes = data;
+    //         displayNotes();
+    //     });
+</script>
+
+</body>
+</html>

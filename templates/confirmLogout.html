@@ -23,7 +23,7 @@
 <body>
 <div class="confirmation">
   <h2>Вы действительно хотите выйти?</h2>
-  <form action="/logout?username={{.Username}}&{{.HashedPassword}}" method="POST">
+  <form action="/logout" method="POST">
     <button type="submit" name="confirm" value="yes">ДА</button>
     <button type="submit" name="confirm" value="no">НЕТ</button>
   </form>

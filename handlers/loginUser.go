@@ -18,7 +18,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		username := r.FormValue("username")
 		password := r.FormValue("password")
 
-		hashedPassword := HashPassword(password)
+		var hashedPassword string
 
 		err = db.QueryRow("SELECT hashed_password FROM users WHERE user_name = $1", username).Scan(&hashedPassword)
 		if err != nil {
@@ -27,17 +27,20 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			http.Error(w, "Ошибка входа", http.StatusInternalServerError)
-			panic(err)
-			return
-		}
-		log.Println(CheckPasswordHash(password, hashedPassword))
-		if CheckPasswordHash(password, hashedPassword) {
-			http.Redirect(w, r, "/register?error=invalid_credentials", http.StatusSeeOther)
 			return
 		}
 
-		http.Redirect(w, r, "/homeUser?username="+username+"&"+hashedPassword, http.StatusSeeOther)
-		return
+		if CheckPasswordHash(password, hashedPassword) { // Предполагается наличие функции CheckPasswordHash в вашем коде.
+			session, _ := store.Get(r, "session-name")
+			session.Values["user_id"] = username // Сохраняем ID пользователя в сессии.
+			session.Save(r, w)
+
+			http.Redirect(w, r, "/homeUser", http.StatusSeeOther)
+			return
+		} else {
+			http.Redirect(w, r, "/login?error=invalid_credentials", http.StatusSeeOther)
+			return
+		}
 	}
 
 	tmpl.Execute(w, nil)

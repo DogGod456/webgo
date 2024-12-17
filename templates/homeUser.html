@@ -71,25 +71,149 @@
 <body>
 <header>
     <div>
-        <button onclick="location.href='/create-note'">Создать заметку</button>
-        <button onclick="location.href='/open-note'">Открыть заметку</button>
+        <button onclick="createNote()">Создать заметку</button>
         <button onclick="location.href='/help'">Справка</button>
     </div>
     <div>
         <span id="username">{{.Username}}</span> <!-- Здесь будет имя пользователя -->
-        <button onclick="location.href='/logout'+'?username={{.Username}}'+'&{{.HashedPassword}}'">Выход</button>
+        <button onclick="location.href='/logout'">Выход</button>
     </div>
 </header>
 <div class="container">
-    <div class="notes-list">
+    <div class="notes-list" id="notesList">
         <h3>Список заметок</h3>
-        <button>Заметка 1</button>
-        <button>Заметка 2</button>
-        <button>Заметка 3</button>
+        {{ range .Notes }}
+        <button onclick="openNote('{{ .ID }}')">{{ .Title }}</button>
+        {{ end }}
     </div>
-    <div class="main-content">
+    <div class="main-content" id="main_content">
         <p>Выберите заметку или создайте ее нажав на кнопку "Создать заметку"</p>
     </div>
 </div>
+
+<script>
+    function openNote(noteID) {
+        document.getElementById('main_content').innerHTML = `Новое содержимое! ${noteID}`;
+        console.log(noteID);
+    }
+</script>
+<script>
+    // Массив для хранения заметок
+    let notes = [];
+    let currentNoteId = null;
+
+    // Функция для отображения модального окна создания заметки
+    function showCreateNoteModal() {
+        document.getElementById('createNoteModal').style.display = 'block';
+    }
+
+    // Функция для скрытия модального окна создания заметки
+    function hideCreateNoteModal() {
+        document.getElementById('createNoteModal').style.display = 'none';
+    }
+
+    // Функция для создания новой заметки через модальное окно
+    function createNote() {
+        const title = document.getElementById('noteTitleInput').value || 'Новая заметка';
+        const color = document.getElementById('noteColorInput').value;
+
+        const note = { title, content: '', color };
+
+        fetch('/notes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(note)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`Ошибка: ${response.status} ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                notes.push(data); // Добавляем новую заметку в массив
+                displayNotes(); // Обновляем список заметок
+                hideCreateNoteModal(); // Скрываем модальное окно
+            })
+            .catch(error => console.error('Ошибка:', error));
+    }
+
+    // Функция для отображения списка заметок
+    function displayNotes() {
+        const notesList = document.getElementById('notesList');
+        notesList.innerHTML = ''; // Очищаем список
+
+        notes.forEach(note => {
+            const noteButton = document.createElement('button');
+            noteButton.style.backgroundColor = note.color; // Устанавливаем цвет фона
+            noteButton.innerText = note.title;
+
+            noteButton.onclick = function() {
+                openNote(note.id); // Передаем ID заметки
+            };
+
+            notesList.appendChild(noteButton); // Добавляем кнопку в список
+        });
+    }
+
+    // Функция для открытия выбранной заметки
+    function openNote(noteId) {
+        fetch(`/notes/${noteId}`)
+            .then(response => {
+                // Проверяем статус ответа
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`Ошибка: ${response.status} ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('noteTitle').innerText = data.title; // Устанавливаем заголовок
+                document.getElementById('noteContent').value = data.content; // Устанавливаем содержимое
+                currentNoteId = data.id; // Устанавливаем ID текущей заметки
+            })
+            .catch(error => console.error('Ошибка:', error));
+    }
+
+    // Функция для сохранения текущей заметки
+    function saveNote() {
+        const title = document.getElementById('noteTitle').innerText;
+        const content = document.getElementById('noteContent').value;
+
+        if (currentNoteId) {
+            // Обновление существующей заметки
+            fetch(`/notes/${currentNoteId}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ title, content })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const index = notes.findIndex(note => note.id === currentNoteId);
+                    if (index !== -1) {
+                        notes[index] = data; // Обновляем массив заметок
+                        displayNotes(); // Обновляем список заметок
+                    }
+                })
+                .catch(error => console.error('Ошибка:', error));
+        } else {
+            createNote(); // Создание новой заметки, если текущий ID не установлен
+        }
+    }
+
+    // Загрузка существующих заметок при загрузке страницы (если необходимо)
+    fetch('/notes')
+        .then(response => response.json())
+        .then(data => {
+            notes = data;
+            displayNotes();
+        });
+</script>
+
 </body>
 </html>

@@ -8,7 +8,7 @@ import (
 	"webgo/handlers"
 )
 
-//var db *sql.DB
+// var db *sql.DB
 
 func handleRequest() {
 	http.HandleFunc("/", handlers.HomePage)
@@ -17,6 +17,10 @@ func handleRequest() {
 	http.HandleFunc("/login", handlers.LoginUser)
 	http.HandleFunc("/adminPage", handlers.AdminPage)
 	http.HandleFunc("/logout", handlers.Logout)
+	http.HandleFunc("/notes", handlers.GetAllNotes)
+	http.HandleFunc("/notes/", handlers.UpdateNote)    // Обновление существующей заметки.
+	http.HandleFunc("/notes/new", handlers.CreateNote) // Создание новой заметки.
+	//http.HandleFunc("/notes", handlers.Notes)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
@@ -27,12 +31,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer db.Close()
+	defer db.Close() // Удалите второй вызов defer db.Close()
+
 	if err = db.Ping(); err != nil {
 		panic(err)
 	}
-	defer db.Close()
 
-	handlers.SetDB(db)
+	handlers.SetDB(db) // Устанавливаем соединение с БД
 	handleRequest()
 }
