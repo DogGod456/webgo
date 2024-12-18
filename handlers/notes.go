@@ -88,11 +88,11 @@ func CreateNote(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonResponse)
 }
 
-func NoteByID(w http.ResponseWriter, r *http.Request) {
+func HandleNoteByID(w http.ResponseWriter, r *http.Request) {
 
-	idStr := r.URL.Path[len("/notes/"):]
-	log.Println(idStr)
-	id, err := strconv.Atoi(idStr)
+	idNoteStr := r.URL.Path[len("/notes/"):]
+	log.Println(idNoteStr)
+	idNote, err := strconv.Atoi(idNoteStr)
 	if err != nil {
 		http.Error(w, "Ошибка конвертации ID ", http.StatusBadRequest)
 		return
@@ -100,11 +100,54 @@ func NoteByID(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		GetNoteByID(w, r, id)
+		GetNoteByID(w, r, idNote)
 	case http.MethodPatch: // Patch - используется для частичного обловления ресурса на сервере
-		UpdateNoteById(w, r, id)
+		UpdateNoteById(w, r, idNote)
+	case http.MethodDelete:
+		DeleteNoteByID(w, r, idNote)
 	}
 
+}
+
+func DeleteNoteByID(w http.ResponseWriter, r *http.Request, id int) {
+	session, _ := store.Get(r, "session-name")
+	userID := session.Values["user_id"]
+
+	rows, err := db.Query("SELECT id, user_id, title, content FROM notes WHERE id = $1", id)
+	if err != nil {
+		http.Error(w, "Ошибка получения данных1", http.StatusInternalServerError)
+		return
+	}
+
+	defer rows.Close()
+
+	if !rows.Next() {
+		return
+	}
+
+	var note Note
+	if err := rows.Scan(&note.ID, &note.UserID, &note.Title, &note.Content); err != nil {
+		http.Error(w, "Ошибка получения данных2", http.StatusInternalServerError)
+		return
+	}
+
+	if note.UserID != userID {
+		http.Error(w, "Пошел нахуй, пидр", http.StatusForbidden)
+		return
+	}
+
+	_, err = db.Exec("DELETE FROM notes WHERE id = $1", id)
+
+	jsonResponse, err := json.Marshal(note)
+	log.Println(jsonResponse)
+	if err != nil {
+		http.Error(w, "Ошибка формирования ответа", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	w.Write(jsonResponse)
 }
 
 func GetNoteByID(w http.ResponseWriter, r *http.Request, id int) {

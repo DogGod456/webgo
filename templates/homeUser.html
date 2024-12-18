@@ -40,12 +40,12 @@
             display: flex;
             flex-grow: 1; /* Заполняет оставшееся пространство */
         }
-        .notes-list {
+        .right-panel {
             width: 200px; /* Ширина списка заметок */
             border-right: 1px solid #ccc; /* Разделитель */
             padding: 10px;
         }
-        .notes-list button {
+        .right-panel button {
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
@@ -58,6 +58,23 @@
             display: flex;
             flex-direction: column; /* Вертикальное расположение */
             padding: 10px; /* Отступы */
+        }
+        .button-group {
+            display: flex; /* Используем Flexbox для размещения кнопок */
+            justify-content: flex-end; /* Выравнивание кнопок по правому краю */
+            margin-bottom: 10px; /* Отступ снизу */
+        }
+        .button-group button {
+            margin-right: 10px; /* Отступ между кнопками */
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #0056b3;
+            color: white;
+            cursor: pointer;
+        }
+        .button-group button:hover {
+            background-color: #004494; /* Цвет при наведении */
         }
         .main-content textarea {
             flex-grow: 1; /* Занимает оставшееся пространство */
@@ -87,16 +104,22 @@
     </div>
 </header>
 <div class="container">
-    <div class="notes-list" id="notesList">
+    <div class="right-panel">
         <h3>Список заметок</h3>
-        {{ range .Notes }}
-        <button onclick="openNote('{{ .ID }}')">{{ .Title }}</button>
-        {{ end }}
+        <div id="notesList">
+            {{ range .Notes }}
+                <button onclick="openNote('{{ .ID }}')">{{ .Title }}</button>
+            {{ end }}
+        </div>
     </div>
     <div class="main-content" id="main_content">
-        <h3 id="noteTitle"></h3>
+        <h3 id="noteTitle">Выберите заметку или создайте ее нажав на кнопку Создать заметку</h3>
+        <div class="button-group">
+            <button onclick="saveNote()">Сохранить</button>
+            <button onclick="deleteNote()">Удалить</button>
+        </div>
         <textarea id="noteContent" rows="5" cols="50" placeholder="Выберите заметку или создайте ее нажав на кнопку Создать заметку"></textarea><br/>
-        <button onclick="saveNote()">Сохранить</button>
+<!--        <button onclick="saveNote()">Сохранить</button>-->
     </div>
 </div>
 
@@ -105,51 +128,12 @@
     <h3>Создать новую заметку</h3>
     <label for="noteTitleInput">Название:</label><br/>
     <input type="text" id="noteTitleInput" placeholder="Введите название заметки"><br/>
-    <label for="noteColorInput">Цвет:</label><br/>
-    <input type="color" id="noteColorInput"><br/>
+<!--    <label for="noteColorInput">Цвет:</label><br/>-->
+<!--    <input type="color" id="noteColorInput"><br/>-->
     <button onclick="createNote()">Создать</button>
     <button onclick="hideCreateNoteModal()">Отмена</button>
 </div>
-<!--<div class="main-content">-->
-<!--    <h3 id="noteTitle"></h3>-->
-<!--    <textarea id="noteContent" rows="10" cols="50" placeholder="Введите текст заметки..."></textarea><br/>-->
-<!--    <button onclick="saveNote()">Сохранить</button>-->
-<!--</div>-->
 </div>
-
-<!--<script>-->
-<!--    function openNote(id) {-->
-<!--        const note = notes.find(n => n.id === id);-->
-
-<!--        if (note) {-->
-<!--            document.getElementById('noteTitle').innerText = note.title;-->
-<!--            document.getElementById('noteContent').value = note.content;-->
-<!--            currentNoteId = id;-->
-<!--        }-->
-<!--    }-->
-
-<!--    function saveNote() {-->
-<!--        const title = document.getElementById('noteTitle').innerText;-->
-<!--        const content = document.getElementById('noteContent').value;-->
-
-
-<!--        const note = { title: title || 'Новая заметка', content: content};-->
-
-<!--        fetch('/notes', {-->
-<!--            method: 'POST',-->
-<!--            headers: {-->
-<!--                'Content-Type': 'application/json'-->
-<!--            },-->
-<!--            body: JSON.stringify(note)-->
-<!--        })-->
-<!--            .then(response => response.json())-->
-<!--            .then(data => {-->
-<!--                notes.push(data);-->
-<!--                displayNotes();-->
-<!--            })-->
-<!--            .catch(error => console.error('Ошибка:', error));-->
-<!--    }-->
-<!--</script>-->
 <script>
     // Массив для хранения заметок
     let notes = [];
@@ -168,8 +152,6 @@
     // Функция для создания новой заметки через модальное окно
     function createNote() {
         const title = document.getElementById('noteTitleInput').value || 'Новая заметка';
-        // const color = document.getElementById('noteColorInput').value;
-
         const note = { title, content: '' };
 
         fetch('/notes', {
@@ -202,7 +184,6 @@
 
         notes.forEach(note => {
             const noteButton = document.createElement('button');
-            // noteButton.style.backgroundColor = note.color; // Устанавливаем цвет фона
             noteButton.innerText = note.title;
 
             noteButton.onclick = function() {
@@ -261,6 +242,41 @@
         }
     }
 
+    function deleteNote() {
+
+        fetch(`/notes/${currentNoteId}`, {
+            method: 'DELETE',
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`Ошибка: ${response.status} ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                for (let i = 0; i <notes.length; i++) {
+                    let note = notes[i];
+                    if (note.id === data.id){
+                        notes.splice(i, 1);
+                        currentNoteId = null;
+                        break;
+                    }
+                }
+                displayNotes(); // Обновляем список заметок
+                resetHomeUser()
+            })
+            .catch(error => console.error('Ошибка:', error));
+
+    }
+
+
+    function resetHomeUser(){
+        document.getElementById('noteTitle').innerText = 'Выберите заметку или создайте ее нажав на кнопку Создать заметку';
+        document.getElementById('noteContent').value = '';
+    }
+
     // Загрузка существующих заметок при загрузке страницы (если необходимо), передаем метод, благодаря которому обращаемся к нужному оброботчику
     fetch('/notes', {
         method: 'GET',
@@ -268,7 +284,6 @@
         .then(response => response.json())
         .then(data => {
             notes = data;
-            displayNotes();
         });
 
 
