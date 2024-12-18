@@ -215,7 +215,9 @@
 
     // Функция для открытия выбранной заметки
     function openNote(noteId) {
-        fetch(`/notes/${noteId}`)
+        fetch(`/notes/${noteId}`, {
+            method: 'GET',
+        })
             .then(response => {
                 // Проверяем статус ответа
                 if (!response.ok) {
