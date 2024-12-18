@@ -94,7 +94,9 @@
         {{ end }}
     </div>
     <div class="main-content" id="main_content">
-        <p>Выберите заметку или создайте ее нажав на кнопку "Создать заметку"</p>
+        <h3 id="noteTitle"></h3>
+        <textarea id="noteContent" rows="5" cols="50" placeholder="Выберите заметку или создайте ее нажав на кнопку Создать заметку"></textarea><br/>
+        <button onclick="saveNote()">Сохранить</button>
     </div>
 </div>
 
@@ -108,11 +110,11 @@
     <button onclick="createNote()">Создать</button>
     <button onclick="hideCreateNoteModal()">Отмена</button>
 </div>
-<div class="main-content">
-    <h3 id="noteTitle"></h3>
-    <textarea id="noteContent" rows="10" cols="50" placeholder="Введите текст заметки..."></textarea><br/>
-    <button onclick="saveNote()">Сохранить</button>
-</div>
+<!--<div class="main-content">-->
+<!--    <h3 id="noteTitle"></h3>-->
+<!--    <textarea id="noteContent" rows="10" cols="50" placeholder="Введите текст заметки..."></textarea><br/>-->
+<!--    <button onclick="saveNote()">Сохранить</button>-->
+<!--</div>-->
 </div>
 
 <!--<script>-->
