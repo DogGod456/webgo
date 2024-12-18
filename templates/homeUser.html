@@ -260,12 +260,12 @@
     }
 
     // Загрузка существующих заметок при загрузке страницы (если необходимо)
-    // fetch('/notes')
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         notes = data;
-    //         displayNotes();
-    //     });
+    fetch('/notes')
+        .then(response => response.json())
+        .then(data => {
+            notes = data;
+            displayNotes();
+        });
 </script>
 
 </body>
