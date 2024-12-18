@@ -168,12 +168,12 @@
     // Функция для создания новой заметки через модальное окно
     function createNote() {
         const title = document.getElementById('noteTitleInput').value || 'Новая заметка';
-        const color = document.getElementById('noteColorInput').value;
+        // const color = document.getElementById('noteColorInput').value;
 
-        const note = { title, content: '', color };
+        const note = { title, content: '' };
 
-        fetch('/notes/new', {
-            method: 'POST',
+        fetch('/notes', {
+            method: 'POST', // благодаря POST мы выбираем в switch в HandleNotes какую функцию использовать для обработки
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -195,14 +195,14 @@
             .catch(error => console.error('Ошибка:', error));
     }
 
-    // Функция для отображения списка заметок
+    // Функция для отображения новой заметки в списке заметок
     function displayNotes() {
         const notesList = document.getElementById('notesList');
         notesList.innerHTML = ''; // Очищаем список
 
         notes.forEach(note => {
             const noteButton = document.createElement('button');
-            noteButton.style.backgroundColor = note.color; // Устанавливаем цвет фона
+            // noteButton.style.backgroundColor = note.color; // Устанавливаем цвет фона
             noteButton.innerText = note.title;
 
             noteButton.onclick = function() {
@@ -259,13 +259,17 @@
         }
     }
 
-    // Загрузка существующих заметок при загрузке страницы (если необходимо)
-    fetch('/notes')
+    // Загрузка существующих заметок при загрузке страницы (если необходимо), передаем метод, благодаря которому обращаемся к нужному оброботчику
+    fetch('/notes', {
+        method: 'GET',
+    })
         .then(response => response.json())
         .then(data => {
             notes = data;
             displayNotes();
         });
+
+
 </script>
 
 </body>

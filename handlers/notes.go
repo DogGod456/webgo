@@ -7,13 +7,23 @@ import (
 	"strconv"
 )
 
-func GetAllNotes(w http.ResponseWriter, r *http.Request) {
+func HandleNotes(w http.ResponseWriter, r *http.Request) {
 
+	switch r.Method {
+	case http.MethodPost:
+		CreateNote(w, r)
+	case http.MethodGet:
+		GetAllNotes(w, r)
+	default:
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+	}
+
+}
+
+func GetAllNotes(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "session-name")
 	userID := session.Values["user_id"] // Извлекаем ID пользователя из сессии
-	log.Println("aboba1", userID)
 
-	log.Println("aboba2", userID)
 	rows, err := db.Query("SELECT id, user_id, title, content FROM notes WHERE user_id = $1", userID)
 	if err != nil {
 		http.Error(w, "Ошибка получения данных", http.StatusInternalServerError)
@@ -81,29 +91,29 @@ func CreateNote(w http.ResponseWriter, r *http.Request) {
 // Обработчик для обновления существующей заметки (AJAX)
 func UpdateNote(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Path[len("/notes/"):]
-
+	log.Println(idStr)
 	id, err := strconv.Atoi(idStr) // Конвертация строки в целое число
 	if err != nil {
 		http.Error(w, "Ошибка конвертации ID ", http.StatusBadRequest)
 		return
 	}
-
+	log.Println(id)
 	var note Note
 
-	if err := json.NewDecoder(r.Body).Decode(&note); err != nil {
-		http.Error(w, "Ошибка декодирования данных ", http.StatusBadRequest)
-		return
-	}
+	//if err := json.NewDecoder(r.Body).Decode(&note); err != nil {
+	//	http.Error(w, "Ошибка декодирования данных ", http.StatusBadRequest)
+	//	return
+	//}
 
 	note.ID = id // Устанавливаем ID для обновления
-
-	if _, err := db.Exec("UPDATE notes SET title=$1 ,content=$2 WHERE id=$3",
-		note.Title, note.Content, id); err != nil {
+	log.Println("qwe", note.ID)
+	if _, err := db.Exec("UPDATE notes SET content=$1 WHERE id=$2", note.Content, id); err != nil {
 		http.Error(w, "Ошибка обновления заметки ", http.StatusInternalServerError)
 		return
 	}
 
 	jsonResponse, err := json.Marshal(note)
+	log.Println(jsonResponse, err)
 	if err != nil {
 		http.Error(w, "Ошибка формирования ответа ", http.StatusInternalServerError)
 		return

@@ -17,9 +17,9 @@ func handleRequest() {
 	http.HandleFunc("/login", handlers.LoginUser)
 	http.HandleFunc("/adminPage", handlers.AdminPage)
 	http.HandleFunc("/logout", handlers.Logout)
-	http.HandleFunc("/notes", handlers.GetAllNotes)
-	http.HandleFunc("/notes/", handlers.UpdateNote)    // Обновление существующей заметки.
-	http.HandleFunc("/notes/new", handlers.CreateNote) // Создание новой заметки.
+	http.HandleFunc("/notes", handlers.HandleNotes)
+	http.HandleFunc("/notes/", handlers.UpdateNote) // Обновление существующей заметки.
+	//http.HandleFunc("/notes/new", handlers.CreateNote) // Создание новой заметки. Все норм
 	//http.HandleFunc("/notes", handlers.Notes)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
