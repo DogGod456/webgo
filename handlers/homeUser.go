@@ -10,15 +10,14 @@ var templates = template.Must(template.ParseFiles("templates/homeUser.html"))
 
 func HomeUser(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "session-name")
-	userID := session.Values["user_id"] // Извлекаем ID пользователя из сессии
+	userID := session.Values["user_id"]
 
 	if userID == nil {
 		log.Println("Отсутствует сессия")
 		http.Redirect(w, r, "/", http.StatusSeeOther)
-		return // Возвращаем ошибку, если произошла ошибка
+		return
 	}
 
-	log.Println("asdasd", userID, store, session)
 	var user User
 	user.Username = session.Values["username"].(string)
 
@@ -36,16 +35,10 @@ func HomeUser(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Ошибка чтения данных заметки", http.StatusInternalServerError)
 			return
 		}
-		note.UserID = user.UserID             // Устанавливаем UserID для заметки
-		user.Notes = append(user.Notes, note) // Добавляем заметку в список заметок пользователя
-		log.Println(user.UserID, user.Notes[0].ID, note.Title, note.Content)
+		note.UserID = user.UserID
+		user.Notes = append(user.Notes, note)
 	}
 
 	err = templates.ExecuteTemplate(w, "homeUser.html", user)
-	/*tmpl, err := template.ParseFiles("templates/homeUser.html")
-	if err != nil {
-		log.Fatal(err)
-	}
-	//log.Println(user)
-	tmpl.Execute(w, user)*/
+
 }
