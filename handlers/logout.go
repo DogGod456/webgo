@@ -13,6 +13,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Ошибка загрузки шаблона", http.StatusInternalServerError)
 		return
 	}
+
 	if r.FormValue("confirm") == "yes" {
 		deleteSessionHandler(w, r)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -21,6 +22,6 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/homeUser", http.StatusSeeOther)
 		return
 	}
-	tmpl.Execute(w, nil)
 
+	tmpl.Execute(w, nil)
 }
