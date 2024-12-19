@@ -19,6 +19,4 @@ func deleteSessionHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unable to delete session", http.StatusInternalServerError)
 		return
 	}
-
-	//fmt.Fprintln(w, "Session deleted successfully")
 }
