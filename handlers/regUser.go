@@ -1,11 +1,6 @@
 package handlers
 
 import (
-	_ "crypto/rand"
-	_ "database/sql"
-	_ "encoding/hex"
-	_ "github.com/gorilla/sessions"
-	_ "github.com/lib/pq"
 	"html/template"
 	"log"
 	"net/http"
