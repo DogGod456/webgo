@@ -12,7 +12,6 @@ func handleRequest() {
 	http.HandleFunc("/register", handlers.RegUser)      // Страница регистрации
 	http.HandleFunc("/login", handlers.LoginUser)       // Страница входа в аккаунт
 	http.HandleFunc("/homeUser", handlers.HomeUser)     // Домашняя страница пользователя
-	http.HandleFunc("/adminPage", handlers.AdminPage)   // Админ панель
 	http.HandleFunc("/logout", handlers.Logout)         // Выход
 	http.HandleFunc("/notes", handlers.HandleNotes)     // Общие обработчики заметок
 	http.HandleFunc("/notes/", handlers.HandleNoteByID) // Частные обработчики заметок
