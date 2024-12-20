@@ -6,23 +6,25 @@
     <title>Рабочее пространство</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             height: 100vh;
+            background: linear-gradient(135deg, #74ebd5, #9face6);
         }
         header {
             background-color: #007bff;
             color: white;
-            padding: 10px 20px;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
         header button {
             margin-left: 10px;
@@ -32,6 +34,7 @@
             background-color: #0056b3;
             color: white;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
         header button:hover {
             background-color: #004494;
@@ -44,6 +47,10 @@
             width: 200px; /* Ширина списка заметок */
             border-right: 1px solid #ccc; /* Разделитель */
             padding: 10px;
+            background-color: #f9f9f9;
+        }
+        .right-panel h3 {
+            margin-top: 0;
         }
         .right-panel button {
             width: 100%;
@@ -51,13 +58,20 @@
             margin-bottom: 10px;
             border-radius: 5px;
             border: none;
+            background-color: #007bff;
+            color: white;
             cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .right-panel button:hover {
+            background-color: #0056b3;
         }
         .main-content {
             flex-grow: 1; /* Заполняет оставшееся пространство */
             display: flex;
             flex-direction: column; /* Вертикальное расположение */
-            padding: 10px; /* Отступы */
+            padding: 20px; /* Отступы */
+            background-color: #ffffff;
         }
         .button-group {
             display: flex; /* Используем Flexbox для размещения кнопок */
@@ -72,12 +86,17 @@
             background-color: #0056b3;
             color: white;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
         .button-group button:hover {
             background-color: #004494; /* Цвет при наведении */
         }
         .main-content textarea {
             flex-grow: 1; /* Занимает оставшееся пространство */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none; /* Запрет изменения размера */
         }
         .create-note-modal {
             display: none; /* Скрыто по умолчанию */
@@ -85,10 +104,64 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
+            background: linear-gradient(135deg, #ffffff, #f0f0f0);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            width: 400px;
+            z-index: 1001; /* Поверх остальных элементов */
+            animation: fadeIn 0.3s; /* Анимация появления */
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -45%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .create-note-modal h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.5em; /* Увеличенный размер шрифта */
+            text-align: center; /* Центрирование заголовка */
+        }
+
+        .create-note-modal input {
+            width: 100%;
+            padding: 5px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: border-color 0.3s; /* Плавный переход цвета рамки */
+        }
+
+        .create-note-modal input:focus {
+            border-color: #007bff; /* Цвет рамки при фокусе */
+            outline: none; /* Убираем стандартный контур */
+        }
+
+        .create-note-modal button {
+            margin-right: 10px;
+            padding: 10px 15px; /* Увеличенные отступы */
+            border-radius: 5px;
+            border: none;
+            background-color: #007bff; /* Цвет кнопки */
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s; /* Плавный переход цвета и анимация */
+        }
+
+        .create-note-modal button:hover {
+            background-color: #0056b3; /* Цвет кнопки при наведении */
+            transform: translateY(-2px); /* Эффект поднятия кнопки */
+        }
+
+        .create-note-modal button:active {
+            transform: translateY(0); /* Возврат кнопки в исходное положение */
         }
     </style>
 </head>
@@ -96,10 +169,9 @@
 <header>
     <div>
         <button onclick="showCreateNoteModal()">Создать заметку</button>
-        <button onclick="location.href='/help'">Справка</button>
     </div>
     <div>
-        <span id="username">{{.Username}}</span> <!-- Здесь будет имя пользователя -->
+        <span id="username">{{.Username}}</span>
         <button onclick="location.href='/logout'">Выход</button>
     </div>
 </header>
@@ -119,17 +191,13 @@
             <button onclick="deleteNote()">Удалить</button>
         </div>
         <textarea id="noteContent" rows="5" cols="50" placeholder="Выберите заметку или создайте ее нажав на кнопку Создать заметку"></textarea><br/>
-<!--        <button onclick="saveNote()">Сохранить</button>-->
     </div>
 </div>
 
-<!-- Модальное окно для создания заметки -->
 <div class="create-note-modal" id="createNoteModal">
     <h3>Создать новую заметку</h3>
     <label for="noteTitleInput">Название:</label><br/>
     <input type="text" id="noteTitleInput" placeholder="Введите название заметки"><br/>
-<!--    <label for="noteColorInput">Цвет:</label><br/>-->
-<!--    <input type="color" id="noteColorInput"><br/>-->
     <button onclick="createNote()">Создать</button>
     <button onclick="hideCreateNoteModal()">Отмена</button>
 </div>
